@@ -6,9 +6,9 @@ router.get('/', getAllBooks); // read
 
 router.post('/', CreateNewBook); // create
 
-router.put('/:id', UpdateBook); //update
+router.put('/update/:id', UpdateBook); //update
 
-router.delete('/:id', DeleteBook); // delete
+router.delete('/delete/:id', DeleteBook); // delete
 
 
 export default router;

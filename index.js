@@ -1,13 +1,13 @@
-import express from 'express';
+import express, { urlencoded } from 'express';
 import dotenv from 'dotenv';
 // const { create } = require('express-handlebars');
 import helmet from 'helmet';
 import cors from 'cors';
-import authentication from "./middlewares/authentication.js";
 import books from './routes/bookRoutes.js'
 import genres from './routes/genreRoutes.js'
 import wish from './routes/wishRoutes.js';
 import categories from "./routes/categoriesRoutes.js"
+import auth from "./routes/authRoutes.js";
 import mongoose from 'mongoose'
 
 dotenv.config();
@@ -19,10 +19,8 @@ const app = express();
 
 
 // Middleware
-app.use(express.json()); // используется для парсинга JSON-формата в обычный JavaScript объект;
-
-// Custom middleware
-//app.use(authentication) // ushbu funksiya, custom middleware tuzishni o'rganish maqsadida yozilgan
+app.use(express.json());// используется для парсинга JSON-формата в обычный JavaScript объект;
+app.use(urlencoded({extended: true})) 
 
 // Built in middleware
 app.use(express.static('public')); // funksiyaga berilgan papka manzili o'sha papkani static ravishda o'qish imkonini beradi
@@ -46,6 +44,7 @@ app.use('/api/books', books);
 app.use('/api/categories', categories);
 app.use('/api/books/filter/', genres);
 app.use('/api/wishlist', wish);
+app.use('/api/auth', auth )
 
 // Asosiy route
 app.get('/', (_, res) => {

@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 
-const Books = mongoose.Schema({
+const Books = new mongoose.Schema({
     name: { type: String, required: true },
     year: { type: Number, required: true },
-    author: { type: String, required: true },
+    author: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Auth',
+        required: true
+    },
     description: { type: String, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },

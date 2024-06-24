@@ -3,7 +3,9 @@ import Books from '../models/Book.js'
 
 export const getAllBooks = async (req, res) => {
     try {
-        const books = await Books.find()
+        const books = await Books
+            .find()
+            .populate("author", "fullName")
         res.status(200).json(books);
         // console.log(books)
     } catch (error) {
@@ -13,11 +15,11 @@ export const getAllBooks = async (req, res) => {
 
 export const CreateNewBook = async (req, res) => {
     try {
-        const { name, year, author, description, price, category, image} = req.body;
+        const { name, year, author, description, price, category, image } = req.body;
         const bookData = { name, year, author, description, price, category, image };
         parseInt(bookData.year);
         parseInt(bookData.price);
-        
+
         const { error } = validateFunction(bookData);
         if (error) return res.status(400).send(error.details[0].message);
 
@@ -46,6 +48,7 @@ export const UpdateBook = async (req, res) => {
 export const DeleteBook = async (req, res) => {
     try {
         const deletedBook = await Books.findByIdAndDelete(req.params.id);
+        console.log(deletedBook);
         res.status(200).json(deletedBook);
     } catch (error) {
         console.log(error)
