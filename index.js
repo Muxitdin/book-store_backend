@@ -52,17 +52,13 @@ app.get('/', (_, res) => {
 });
 
 
-// // Portni listen qilish
-// const port = process.env.PORT || 5000;
-// app.listen(port, () => {
-//     console.log(`http://localhost:${port}`);
-// });
+const port = process.env.PORT || 3000;
 
 const runCode = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        app.listen(process.env.PORT, () => {
-            console.log(`http://localhost:${process.env.PORT}`);
+        app.listen(port, () => {
+            console.log(`http://localhost:${port}/`);
         });
     } catch (error) {
         console.log(error);
