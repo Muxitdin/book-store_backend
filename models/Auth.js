@@ -6,6 +6,21 @@ const Auth = new mongoose.Schema(
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         role: { type: String, default: "user" },
+        basket: 
+        [
+            
+            {
+                book: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Books"
+                },
+                count: {
+                    type: Number,
+                    default: 1
+                }
+            },
+
+        ],  
     },
     {
         timestamps: true

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllBooks, CreateNewBook, UpdateBook, DeleteBook } from '../controllers/bookControllers.js';
+import { getAllBooks, CreateNewBook, UpdateBook, DeleteBook, addBookToCart, removeBookFromCart, deleteBookFromCart } from '../controllers/bookControllers.js';
 const router = express.Router();
 
 router.get('/', getAllBooks); // read
@@ -10,6 +10,11 @@ router.put('/update/:id', UpdateBook); //update
 
 router.delete('/delete/:id', DeleteBook); // delete
 
+router.post('/:userId/:bookId', addBookToCart); // add book to cart
+
+router.delete('/:userId/rm/:itemId', removeBookFromCart) // remove book from cart
+
+router.delete('/:userId/del/:itemId', deleteBookFromCart) // delete book from cart
 
 export default router;
 

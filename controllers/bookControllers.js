@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import Books from '../models/Book.js'
+import Auth from "../models/Auth.js"
 
 export const getAllBooks = async (req, res) => {
     try {
@@ -52,6 +53,80 @@ export const DeleteBook = async (req, res) => {
         res.status(200).json(deletedBook);
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const addBookToCart = async (req, res) => {
+    try {
+        const { userId, bookId } = req.params;
+
+        const foundAuth = await Auth.findById(userId);
+        if (!foundAuth) return res.status(404).json("user not found")
+
+        const bookInBasket = foundAuth.basket.find((item) => item.book?.toString() === bookId.toString());
+
+
+        if (bookInBasket) {
+            bookInBasket.count += 1;
+            console.log(bookInBasket)
+        } else {
+            console.log("ishlayapti")
+            foundAuth.basket.push({ book: bookId, count: 1 });
+        }
+
+        await foundAuth.save();
+        res.status(200).json({ message: "Successfully added to cart" });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error);
+    }
+}
+
+export const removeBookFromCart = async (req, res) => {
+    try {
+        const { userId, itemId } = req.params;
+
+        const foundAuth = await Auth.findById(userId);
+        if (!foundAuth) return res.status(404).json("user not found")
+
+        const bookInBasket = foundAuth.basket.find((item) => item._id?.toString() === itemId.toString());
+
+        if (bookInBasket) {
+            bookInBasket.count -= 1;
+
+            res.status(200).json({ message: "successfully removed" })
+        } else {
+            res.status(404).json({ message: "No book found in cart" })
+        }
+
+        await foundAuth.save();
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error);
+    }
+}
+
+export const deleteBookFromCart = async (req, res) => {
+    try {
+        const { userId, itemId } = req.params;
+
+        const foundAuth = await Auth.findById(userId);
+        if (!foundAuth) return res.status(404).json("user not found")
+
+        const bookInBasket = foundAuth.basket.find((item) => item._id?.toString() === itemId);
+
+        if (bookInBasket) {
+            foundAuth.basket = foundAuth.basket.filter((item) => item._id?.toString() !== itemId.toString());
+
+            await foundAuth.save();
+            res.status(200).json({ message: "successfully deleted", foundAuth })
+        } else {
+            res.status(404).json({ message: "No book found in cart" })
+        }
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error);
     }
 }
 

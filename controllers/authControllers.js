@@ -21,7 +21,7 @@ export const createNewUser = async (req, res) => {
             const user = await Auth.create(newUser);
             console.log(user)
             const token = generateAccessToken(user._id);
-            res.status(201).json({token, user})
+            res.status(201).json({ token, user })
         }
     } catch (error) {
         console.log(error)
@@ -49,12 +49,22 @@ export const loginUser = async (req, res) => {
 
 export const getAuth = async (req, res) => {
     try {
-        const foundAuth = await Auth.findById(req.authId);
+        const foundAuth = await Auth.findById(req.authId)
+            .populate({
+                path: "basket.book",
+                model: "Books",
+                // select: "-_id -__v",
+                populate: {
+                    path: "author",
+                    model: "Auth",
+                    select: "-basket -password -_id -__v"
+                }
+            });
         if (!foundAuth) return res.status(404).json("Foydalanuvchi topilmadi");
-        
-        res.status(200).json({data: foundAuth});
+
+        res.status(200).json({ data: foundAuth });
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
         res.status(500).json(error);
     }
 };
