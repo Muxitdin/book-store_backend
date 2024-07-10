@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import Auth from "../models/Auth.js"
 import generateAccessToken from "../services/Token.js";
-
+import SendMail from "../config/sendMail.js"
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -17,10 +17,11 @@ export const createNewUser = async (req, res) => {
     try {
         if (fullName && email && password && role) {
             const HashedPassword = await bcrypt.hash(password, 10);
-            const newUser = { fullName, email, password: HashedPassword, role };
+            const newUser = { fullName, email, password: HashedPassword, role, verified: false };
             const user = await Auth.create(newUser);
             console.log(user)
             const token = generateAccessToken(user._id);
+            SendMail(user);
             res.status(201).json({ token, user })
         }
     } catch (error) {

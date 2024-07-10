@@ -20,7 +20,8 @@ const Auth = new mongoose.Schema(
                 }
             },
 
-        ],  
+        ],
+        verified: { type: Boolean, default: false },
     },
     {
         timestamps: true
