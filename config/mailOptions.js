@@ -1,9 +1,13 @@
-export default function (email) {
+export default function (email, link) {
     const mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: 'Book-Store Registration',
-        text: 'You are successfully registered!',
+        subject: 'Verify Your Account',
+        html: `<p>
+            In order to verify your auth, click to the link provided below: <br />
+            <a href=${link}>${link}</a> <br />
+            expires in <b>5 hours</b>
+        </p>`,
     };
 
     return mailOptions;

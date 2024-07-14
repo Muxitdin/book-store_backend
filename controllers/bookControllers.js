@@ -3,9 +3,13 @@ import Books from '../models/Book.js'
 import Auth from "../models/Auth.js"
 
 export const getAllBooks = async (req, res) => {
+    const { name } = req.query
+
+    const filter = name ? { name: new RegExp(name, 'i') } : {};
+    
     try {
         const books = await Books
-            .find()
+            .find(filter)
             .populate("author", "fullName")
         res.status(200).json(books);
         // console.log(books)
@@ -137,7 +141,7 @@ const validateFunction = (book) => { // эта функция позволяет
         id: Joi.any(),
         name: Joi.string().min(3).required(),
         year: Joi.number().min(0).max(currentYear).required(),
-        author: Joi.string().required(),
+        author: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(), // The author field is validated to be a string that matches the pattern of a MongoDB ObjectId (24 hex characters).
         description: Joi.string().min(3).required(),
         price: Joi.number().min(0).required(),
         category: Joi.string().required(),

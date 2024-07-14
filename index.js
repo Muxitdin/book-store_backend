@@ -38,6 +38,7 @@ if (app.get('env') === 'development') { // process.env.NODE_ENV
 // app.set('view engine', 'hbs'); // hbs - handlebars paketi
 // app.engine("hbs", hbs.engine);
 // app.set("views", "./views");
+app.set('view engine', 'ejs');
 
 // Books obyektini router sifatida ishlatish    
 app.use('/api/books', books);
