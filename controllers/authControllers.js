@@ -106,3 +106,26 @@ export const verificateUser = async (req, res) => {
         res.render('error', { message: error.message });
     }
 };
+
+export const editUserData = async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(id)
+        const { type, value } = req.body;
+        console.log(req.body);
+
+        const existedUser = await Auth.findById(id);
+        if (!existedUser) return res.status(404).json("Foydalanuvchi topilmadi");
+
+        // const equalPassword = await bcrypt.compare(password, existedUser.password);
+        // if (!equalPassword) return res.status(403).json("Parol xato");
+
+
+        const updatedAuth = await Auth.findByIdAndUpdate(id, { [type]: value}, { new: true });
+        console.log(updatedAuth);
+        updatedAuth.save();
+        res.status(200).json({ data: updatedAuth, message: "Ma'lumotlar muvaffaqiyatli yangilandi" });
+    } catch (error) {
+        console.log(error)
+    }
+}
