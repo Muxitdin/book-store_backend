@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllUsers, getAuth, createNewUser, loginUser, verificateUser, editUserData} from "../controllers/authControllers.js"
+import { getAllUsers, getAuth, createNewUser, loginUser, verificateUser, editUserData, sendVerificationEmail} from "../controllers/authControllers.js"
 import authentication from "../middlewares/authentication.js"
 
 const router = express.Router()
@@ -13,6 +13,8 @@ router.post("/register", createNewUser )
 router.post("/login", loginUser )
 
 router.get("/verify/:userId/:uniqueId", verificateUser)
+
+router.get("/user-verify", sendVerificationEmail)
 
 router.put("/edit/:id", editUserData)
 

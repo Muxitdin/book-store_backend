@@ -107,6 +107,19 @@ export const verificateUser = async (req, res) => {
     }
 };
 
+export const sendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.query;
+        console.log(email)
+        const existedUser = await Auth.findOne({ email });
+        if(!existedUser) return res.status(404).json("Foydalanuvchi topilmadi")
+        SendMail(existedUser);
+        res.status(200).json("email has been sent")
+    } catch (error) {
+        
+    }
+}
+
 export const editUserData = async (req, res) => {
     try {
         const { id } = req.params;
@@ -122,6 +135,9 @@ export const editUserData = async (req, res) => {
 
 
         const updatedAuth = await Auth.findByIdAndUpdate(id, { [type]: value}, { new: true });
+        if (type === "email") {
+            updatedAuth.verified = false;
+        }
         console.log(updatedAuth);
         updatedAuth.save();
         res.status(200).json({ data: updatedAuth, message: "Ma'lumotlar muvaffaqiyatli yangilandi" });
