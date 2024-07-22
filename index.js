@@ -8,6 +8,7 @@ import genres from './routes/genreRoutes.js'
 import wish from './routes/wishRoutes.js';
 import categories from "./routes/categoriesRoutes.js"
 import auth from "./routes/authRoutes.js";
+import image from "./routes/imageRoutes.js";
 import mongoose from 'mongoose'
 
 dotenv.config();
@@ -46,6 +47,7 @@ app.use('/api/categories', categories);
 app.use('/api/books/filter/', genres);
 app.use('/api/wishlist', wish);
 app.use('/api/auth', auth )
+app.use('/api/upload-image', image);
 
 // Asosiy route
 app.get('/', (_, res) => {

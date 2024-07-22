@@ -103,6 +103,10 @@ export const removeBookFromCart = async (req, res) => {
             res.status(404).json({ message: "No book found in cart" })
         }
 
+        if (bookInBasket.count <= 0) {
+            foundAuth.basket = foundAuth.basket.filter((item) => item._id?.toString() !== itemId.toString());
+        }
+
         await foundAuth.save();
     } catch (error) {
         console.log(error.message);
@@ -139,7 +143,7 @@ const validateFunction = (book) => { // эта функция позволяет
     // Validate schema - sxemada obyektni qanday xossalari bo’lishi kerakligi va o’sha xossalarni turlari qanaqa bo’lishi, xossani qiymati eng kamida qancha bo’lishi yoki eng uzog’i bilan qancha bo’lishi ko'rsatib o'tiladi.
     const schema = Joi.object({
         id: Joi.any(),
-        name: Joi.string().min(3).required(),
+        name: Joi.string().min(1).required(),
         year: Joi.number().min(0).max(currentYear).required(),
         author: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(), // The author field is validated to be a string that matches the pattern of a MongoDB ObjectId (24 hex characters).
         description: Joi.string().min(3).required(),
