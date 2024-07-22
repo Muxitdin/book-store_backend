@@ -3,6 +3,8 @@ import Auth from "../models/Auth.js"
 import Verification from "../models/verificationModel.js";
 import generateAccessToken from "../services/Token.js";
 import SendMail from "../config/sendMail.js"
+import SendMailForPass from "../config/sendMailForPass.js";
+
 export const getAllUsers = async (req, res) => {
     try {
         const users = await Auth.find();
@@ -112,11 +114,11 @@ export const sendVerificationEmail = async (req, res) => {
         const { email } = req.query;
         console.log(email)
         const existedUser = await Auth.findOne({ email });
-        if(!existedUser) return res.status(404).json("Foydalanuvchi topilmadi")
+        if (!existedUser) return res.status(404).json("Foydalanuvchi topilmadi")
         SendMail(existedUser);
-        res.status(200).json("email has been sent")
+        res.status(200).json("Email has been sent")
     } catch (error) {
-        
+
     }
 }
 
@@ -134,7 +136,7 @@ export const editUserData = async (req, res) => {
         // if (!equalPassword) return res.status(403).json("Parol xato");
 
 
-        const updatedAuth = await Auth.findByIdAndUpdate(id, { [type]: value}, { new: true });
+        const updatedAuth = await Auth.findByIdAndUpdate(id, { [type]: value }, { new: true });
         if (type === "email") {
             updatedAuth.verified = false;
         }
@@ -145,3 +147,47 @@ export const editUserData = async (req, res) => {
         console.log(error)
     }
 }
+
+export const findUserByEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+        console.log(email)
+        const foundAuth = await Auth.findOne({ email });
+        if (!foundAuth) return res.status(404).json({ message: "No User Found" });
+        SendMailForPass(foundAuth);
+        res.status(200).json({ message: "Email has been sent" });
+    } catch (error) {
+        console.log(error.message);
+        res.render("error", { message: error.message });
+    }
+}
+
+export const updatePassword = async (req, res) => {
+    try {
+        const { userId, uniqueId } = req.params;
+        const { newPassword, confirmPassword } = req.body;
+        const existingVerification = await Verification.findOne({ userId });
+        if (!existingVerification) return res.status(400).json({ message: "Parolni yangilashda muammo yoki link yaroqsiz" });
+        if (existingVerification.expiresIn < Date.now()) {
+            await Verification.deleteOne({ userId });
+            res.status(400).json({ message: "Afsuski amal qilish muddati tugadi, oldinroq kirish kerak edi. Yoki boshqatdan so'rov jo'nating!" });
+        }
+        else {
+            const isValid = await bcrypt.compare(uniqueId, existingVerification.uniqueId);
+            if (!isValid) return res.status(400).json({ message: "Link yaroqsiz, iltimos qayta tekshirib ko'ring!" });
+            // await Verification.deleteMany({ userId });
+            const foundAuth = await Auth.findById(userId);
+            if (!foundAuth) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+            const isMatch = newPassword === confirmPassword;
+            if (!isMatch) return res.status(400).json({ message: "Parollar mos emas" });
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            foundAuth.password = hashedPassword;
+            await foundAuth.save();
+            res.status(200).json({ message: "Parol muvaffaqiyatli yangilandi" });
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.render('error', { message: error.message });
+    }
+}
+
