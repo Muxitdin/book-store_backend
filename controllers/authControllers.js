@@ -21,11 +21,11 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const createNewUser = async (req, res) => {
-    const { fullName, email, password, role } = req.body;
+    const { fullName, email, password } = req.body;
     try {
-        if (fullName && email && password && role) {
+        if (fullName && email && password) {
             const HashedPassword = await bcrypt.hash(password, 10);
-            const newUser = { fullName, email, password: HashedPassword, role, verified: false };
+            const newUser = { fullName, email, password: HashedPassword, verified: false };
             const user = await Auth.create(newUser);
             console.log(user)
             // const token = generateAccessToken(user._id);
@@ -71,7 +71,7 @@ export const getAuth = async (req, res) => {
                     populate: {
                         path: "author",
                         model: "Auth",
-                        select: "-basket -password -_id -__v"
+                        select: "-basket -password -__v"
                     }
                 },
                 {
