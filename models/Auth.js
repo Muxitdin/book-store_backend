@@ -8,7 +8,6 @@ const Auth = new mongoose.Schema(
         role: { type: String, default: "user" },
         basket: 
         [
-            
             {
                 book: {
                     type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +18,15 @@ const Auth = new mongoose.Schema(
                     default: 1
                 }
             },
-
+        ],
+        orders: [
+            {
+                products: [{type: mongoose.Schema.Types.ObjectId, ref: "Books"}],
+                total: Number,
+                address: Object,
+                status: String,
+                createdAt: {type: Date, default: Date.now()}
+            }
         ],
         verified: { type: Boolean, default: false },
     },

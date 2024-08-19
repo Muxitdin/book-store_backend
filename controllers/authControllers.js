@@ -4,6 +4,11 @@ import Verification from "../models/verificationModel.js";
 import generateAccessToken from "../services/Token.js";
 import SendMail from "../config/sendMail.js"
 import SendMailForPass from "../config/sendMailForPass.js";
+import dotenv from 'dotenv';
+dotenv.config();
+import Stripe from "stripe"
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -59,16 +64,24 @@ export const loginUser = async (req, res) => {
 export const getAuth = async (req, res) => {
     try {
         const foundAuth = await Auth.findById(req.authId)
-            .populate({
-                path: "basket.book",
-                model: "Books",
-                // select: "-_id -__v",
-                populate: {
-                    path: "author",
-                    model: "Auth",
-                    select: "-basket -password -_id -__v"
-                }
-            });
+            .populate([
+                {
+                    path: "basket.book",
+                    model: "Books",
+                    populate: {
+                        path: "author",
+                        model: "Auth",
+                        select: "-basket -password -_id -__v"
+                    }
+                },
+                {
+                    path: "orders.products",
+                    model: "Books",
+                    populate: [
+                        { path: "author", model: "Auth", select: "-basket -password -_id -__v -orders   "},
+                    ]
+                },
+            ])
         if (!foundAuth) return res.status(404).json("Foydalanuvchi topilmadi");
 
         res.status(200).json({ data: foundAuth });
@@ -191,3 +204,27 @@ export const updatePassword = async (req, res) => {
     }
 }
 
+export const payment = async (req, res) => {
+    try {
+        const { totalAmount, currency, source, products } = req.body;
+        const charges = await stripe.charges.create({
+            amount: totalAmount * 100,
+            currency,
+            source
+        });
+        const foundAuth = await Auth.findById(req.authId);
+        if (!foundAuth) return res.status(404).json({ message: "No user found" });
+        foundAuth.orders.push({
+            products,
+            total: totalAmount,
+            address: charges.billing_details.address,
+            status: "pending"
+        });
+        foundAuth.basket = [];
+        await foundAuth.save();
+        res.status(200).json({ data: foundAuth, message: "order accepted" });
+    } catch (error) {
+        console.log(error.message);
+        res.render('error', { message: error.message });
+    }
+}
