@@ -6,7 +6,7 @@ export const getAllBooks = async (req, res) => {
     const { name } = req.query
 
     const filter = name ? { name: new RegExp(name, 'i') } : {};
-    
+
     try {
         const books = await Books
             .find(filter)
@@ -52,8 +52,13 @@ export const UpdateBook = async (req, res) => {
 
 export const DeleteBook = async (req, res) => {
     try {
+        const userId = req.authId
+
+        const foundAuth = await Auth.findById(userId);
+        if (!foundAuth) return res.status(404).json("user not found")
+        foundAuth.basket = foundAuth.basket.filter((item) => item?.book?._id?.toString() !== req.params.id.toString());
+        await foundAuth.save();
         const deletedBook = await Books.findByIdAndDelete(req.params.id);
-        console.log(deletedBook);
         res.status(200).json(deletedBook);
     } catch (error) {
         console.log(error)
