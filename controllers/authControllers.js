@@ -116,7 +116,7 @@ export const verificateUser = async (req, res) => {
         // todo: Eng avval verification modelidan kelgan so'rov bo'yicha ma'lumot bor yoki yo'qligini tekshirib olish zarur
         const existingVerification = await Verification.findOne({ userId })
         // todo: Agar yo'q bo'lsa mos ravishda html sahifani qaytarish
-        if (!existingVerification) return res.render('e rror', { message: "Sorry, your verification is not found or already verified!" })
+        if (!existingVerification) return res.render('error', { message: "Sorry, your verification is not found or already verified!" })
         // todo: Agar bor bo'lsa verifikatsiyani muddatini tekshirish
         if (existingVerification.expiresIn < Date.now()) {
             // todo: Agar muddati o'tgan bo'lsa mos ravishda html sahifani qaytarish va verification model ma'lumoti hamda foydalanuvchi ma'lumotlarini database dan o'chirib yuborish
@@ -149,7 +149,7 @@ export const sendVerificationEmail = async (req, res) => {
         SendMail(existedUser)
         res.status(200).json("Email has been sent")
     } catch (error) {
-
+        console.log(error)
     }
 }
 
